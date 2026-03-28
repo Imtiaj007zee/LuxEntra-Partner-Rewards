@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>LuxEntra Partner Rewards</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#B8955A;--gold-light:#D4AF72;--gold-dark:#8B6B35;
+  --cream:#FAFAF7;--warm-white:#F5F3EE;--off-white:#EEECE6;
+  --charcoal:#1A1A1A;--slate:#2D2D2D;--mid:#6B6560;--soft:#9E9891;
+  --border:#E8E4DC;--card:#FFFFFF;--overlay:rgba(26,26,26,0.6);
+  --shadow-sm:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:0 4px 16px rgba(0,0,0,0.08),0 2px 6px rgba(0,0,0,0.05);
+  --shadow-lg:0 12px 40px rgba(0,0,0,0.10),0 4px 12px rgba(0,0,0,0.06);
+  --shadow-xl:0 24px 64px rgba(0,0,0,0.12),0 8px 24px rgba(0,0,0,0.08);
+  --r:16px;--r-sm:10px;--r-lg:24px;--r-xl:32px;
+}
+html{font-size:16px;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body{background:var(--cream);color:var(--charcoal);font-family:'DM Sans',sans-serif;line-height:1.5;min-height:100vh;overflow-x:hidden}
+#root{min-height:100vh}
+
+/* ---- ANIMATIONS ---- */
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes progressFill{from{width:0}to{width:var(--target-width)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes bounceIn{0%{transform:scale(0.85);opacity:0}60%{transform:scale(1.04)}100%{transform:scale(1);opacity:1}}
+
+.fade-up{animation:fadeUp 0.55s cubic-bezier(0.22,1,0.36,1) both}
+.fade-in{animation:fadeIn 0.4s ease both}
+.slide-in{animation:slideIn 0.45s cubic-bezier(0.22,1,0.36,1) both}
+.bounce-in{animation:bounceIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both}
+
+/* ---- LAYOUT ---- */
+.app-shell{display:flex;min-height:100vh;background:var(--cream)}
+.sidebar{width:260px;min-height:100vh;background:var(--charcoal);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:100;transition:transform 0.35s cubic-bezier(0.22,1,0.36,1)}
+.main-content{margin-left:260px;flex:1;min-height:100vh;padding:0}
+.page{padding:40px 48px;max-width:1200px}
+
+/* ---- SIDEBAR ---- */
+.sidebar-logo{padding:32px 28px 24px;border-bottom:1px solid rgba(255,255,255,0.06)}
+.logo-mark{display:flex;align-items:center;gap:12px}
+.logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));border-radius:9px;display:flex;align-items:center;justify-content:center}
+.logo-text-l{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;color:#fff;letter-spacing:0.01em}
+.logo-sub{font-size:10px;color:var(--soft);letter-spacing:0.12em;text-transform:uppercase;margin-top:2px}
+.sidebar-nav{padding:20px 16px;flex:1}
+.nav-section-label{font-size:10px;color:rgba(255,255,255,0.28);letter-spacing:0.14em;text-transform:uppercase;padding:0 12px;margin:20px 0 8px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;cursor:pointer;transition:all 0.2s;color:rgba(255,255,255,0.52);font-size:14px;font-weight:400;position:relative;margin-bottom:2px}
+.nav-item:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.85)}
+.nav-item.active{background:rgba(184,149,90,0.18);color:var(--gold-light)}
+.nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:60%;background:var(--gold);border-radius:0 3px 3px 0}
+.nav-icon{width:18px;height:18px;opacity:0.8}
+.sidebar-footer{padding:20px 16px 28px;border-top:1px solid rgba(255,255,255,0.06)}
+.user-chip{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,0.05)}
+.user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-dark));display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:15px;color:#fff;font-weight:500;flex-shrink:0}
+.user-name{font-size:13px;color:rgba(255,255,255,0.75);font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px}
+.user-role{font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:0.06em}
+.logout-btn{margin-left:auto;background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.3);padding:4px;border-radius:6px;transition:color 0.2s;flex-shrink:0}
+.logout-btn:hover{color:rgba(255,255,255,0.7)}
+
+/* ---- TOPBAR ---- */
+.topbar{height:68px;background:rgba(250,250,247,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 48px;gap:16px;position:sticky;top:0;z-index:50}
+.topbar-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;color:var(--charcoal);flex:1}
+.topbar-actions{display:flex;align-items:center;gap:10px}
+
+/* ---- CARDS ---- */
+.card{background:var(--card);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow-sm);padding:28px}
+.card-lg{padding:36px}
+.card-sm{padding:20px}
+.card:hover{box-shadow:var(--shadow-md);transition:box-shadow 0.25s}
+
+/* ---- STAT CARDS ---- */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:var(--card);border-radius:var(--r);border:1px solid var(--border);padding:24px 26px;position:relative;overflow:hidden;transition:transform 0.2s,box-shadow 0.2s}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.stat-card::after{content:'';position:absolute;top:0;right:0;width:80px;height:80px;background:radial-gradient(circle,rgba(184,149,90,0.06) 0%,transparent 70%);pointer-events:none}
+.stat-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;font-size:18px}
+.stat-icon.gold{background:rgba(184,149,90,0.12);color:var(--gold)}
+.stat-icon.green{background:rgba(34,197,94,0.1);color:#22c55e}
+.stat-icon.blue{background:rgba(59,130,246,0.1);color:#3b82f6}
+.stat-icon.purple{background:rgba(139,92,246,0.1);color:#8b5cf6}
+.stat-value{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:500;color:var(--charcoal);line-height:1;margin-bottom:4px}
+.stat-label{font-size:13px;color:var(--mid);font-weight:400}
+.stat-delta{font-size:12px;margin-top:8px;color:#22c55e;font-weight:500}
+.stat-delta.neutral{color:var(--soft)}
+
+/* ---- PROGRESS ---- */
+.progress-section{background:linear-gradient(135deg,var(--charcoal) 0%,#2a2520 100%);border-radius:var(--r-lg);padding:36px;margin-bottom:24px;position:relative;overflow:hidden}
+.progress-section::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.015'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");pointer-events:none}
+.progress-section::after{content:'';position:absolute;top:-60px;right:-60px;width:240px;height:240px;background:radial-gradient(circle,rgba(184,149,90,0.12) 0%,transparent 65%);pointer-events:none}
+.progress-heading{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:400;color:#fff;margin-bottom:4px}
+.progress-sub{font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:28px}
+.progress-bar-track{height:8px;background:rgba(255,255,255,0.1);border-radius:100px;margin-bottom:12px;overflow:hidden}
+.progress-bar-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--gold-dark),var(--gold-light));transition:width 1.2s cubic-bezier(0.22,1,0.36,1);position:relative}
+.progress-bar-fill::after{content:'';position:absolute;top:0;right:0;bottom:0;width:30px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3));animation:shimmer 1.8s infinite}
+.progress-labels{display:flex;justify-content:space-between;font-size:12px;color:rgba(255,255,255,0.4)}
+.progress-stats{display:flex;gap:40px;margin-top:24px}
+.p-stat{text-align:left}
+.p-stat-val{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:400;color:#fff;line-height:1}
+.p-stat-label{font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:0.06em;text-transform:uppercase;margin-top:3px}
+.redeem-badge{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#fff;border-radius:100px;padding:10px 22px;font-size:14px;font-weight:500;cursor:pointer;border:none;margin-top:20px;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 4px 14px rgba(184,149,90,0.4)}
+.redeem-badge:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(184,149,90,0.5)}
+.redeem-badge:disabled{opacity:0.45;cursor:not-allowed;transform:none}
+
+/* ---- TABLE ---- */
+.table-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;background:var(--card)}
+th{font-size:11px;font-weight:500;color:var(--soft);letter-spacing:0.1em;text-transform:uppercase;padding:14px 20px;text-align:left;border-bottom:1px solid var(--border);background:var(--warm-white)}
+td{padding:15px 20px;font-size:14px;color:var(--charcoal);border-bottom:1px solid rgba(232,228,220,0.5)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(250,250,247,0.8)}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:100px;font-size:11px;font-weight:500;letter-spacing:0.03em}
+.badge.completed{background:rgba(34,197,94,0.1);color:#16a34a}
+.badge.pending{background:rgba(251,191,36,0.12);color:#b45309}
+.badge.redeemed{background:rgba(139,92,246,0.1);color:#7c3aed}
+.badge.gold-badge{background:rgba(184,149,90,0.12);color:var(--gold-dark)}
+
+/* ---- FORMS / AUTH ---- */
+.auth-shell{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--warm-white);position:relative;overflow:hidden}
+.auth-shell::before{content:'';position:absolute;top:-200px;left:-200px;width:600px;height:600px;background:radial-gradient(circle,rgba(184,149,90,0.06) 0%,transparent 70%);pointer-events:none}
+.auth-shell::after{content:'';position:absolute;bottom:-200px;right:-200px;width:600px;height:600px;background:radial-gradient(circle,rgba(184,149,90,0.04) 0%,transparent 70%);pointer-events:none}
+.auth-card{background:var(--card);border-radius:var(--r-xl);border:1px solid var(--border);padding:52px 48px;width:100%;max-width:440px;box-shadow:var(--shadow-xl);position:relative;z-index:1}
+.auth-logo{text-align:center;margin-bottom:36px}
+.auth-logo-icon{width:52px;height:52px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));border-radius:14px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:0 8px 24px rgba(184,149,90,0.3)}
+.auth-title{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:400;color:var(--charcoal);margin-bottom:4px}
+.auth-sub{font-size:13px;color:var(--soft)}
+.form-group{margin-bottom:18px}
+.form-label{display:block;font-size:12px;font-weight:500;color:var(--mid);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px}
+.form-input{width:100%;padding:13px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--charcoal);background:var(--warm-white);transition:border-color 0.2s,box-shadow 0.2s;outline:none}
+.form-input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,149,90,0.1);background:#fff}
+.form-input::placeholder{color:var(--soft)}
+.form-error{font-size:12px;color:#dc2626;margin-top:5px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 24px;border-radius:10px;font-size:14px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;border:none;transition:all 0.2s;text-decoration:none;white-space:nowrap}
+.btn-primary{background:var(--charcoal);color:#fff;width:100%}
+.btn-primary:hover{background:var(--slate);transform:translateY(-1px);box-shadow:var(--shadow-md)}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#fff}
+.btn-gold:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(184,149,90,0.4)}
+.btn-outline{background:transparent;color:var(--charcoal);border:1.5px solid var(--border)}
+.btn-outline:hover{border-color:var(--charcoal);background:var(--warm-white)}
+.btn-sm{padding:8px 16px;font-size:13px;border-radius:8px}
+.btn-danger{background:rgba(220,38,38,0.1);color:#dc2626;border:1.5px solid rgba(220,38,38,0.15)}
+.btn-danger:hover{background:rgba(220,38,38,0.18)}
+.auth-divider{text-align:center;position:relative;margin:20px 0}
+.auth-divider::before{content:'';position:absolute;left:0;right:0;top:50%;height:1px;background:var(--border)}
+.auth-divider span{background:var(--card);padding:0 12px;font-size:12px;color:var(--soft);position:relative}
+.auth-switch{text-align:center;margin-top:22px;font-size:13px;color:var(--mid)}
+.auth-switch a{color:var(--gold-dark);cursor:pointer;font-weight:500;text-decoration:none}
+.auth-switch a:hover{text-decoration:underline}
+.tab-row{display:flex;background:var(--warm-white);border-radius:10px;padding:4px;gap:2px;margin-bottom:28px}
+.tab-btn{flex:1;padding:9px;border-radius:7px;border:none;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;color:var(--mid);background:transparent;transition:all 0.2s}
+.tab-btn.active{background:var(--card);color:var(--charcoal);box-shadow:var(--shadow-sm)}
+
+/* ---- MODALS ---- */
+.modal-overlay{position:fixed;inset:0;background:var(--overlay);backdrop-filter:blur(8px);z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;animation:fadeIn 0.2s ease}
+.modal{background:var(--card);border-radius:var(--r-xl);padding:40px;width:100%;max-width:500px;box-shadow:var(--shadow-xl);animation:bounceIn 0.35s cubic-bezier(0.34,1.56,0.64,1);max-height:90vh;overflow-y:auto}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:500;margin-bottom:4px}
+.modal-sub{font-size:13px;color:var(--mid);margin-bottom:28px}
+.modal-actions{display:flex;gap:10px;margin-top:28px;justify-content:flex-end}
+
+/* ---- SECTIONS ---- */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.section-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;color:var(--charcoal)}
+.section-sub{font-size:13px;color:var(--soft);margin-top:1px}
+
+/* ---- SEARCH ---- */
+.search-wrap{position:relative}
+.search-input{padding:10px 16px 10px 38px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--charcoal);background:var(--warm-white);outline:none;width:240px;transition:border-color 0.2s,width 0.3s}
+.search-input:focus{border-color:var(--gold);background:#fff;width:280px}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--soft);pointer-events:none}
+
+/* ---- TIMELINE ---- */
+.timeline{position:relative;padding-left:28px}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:1.5px;background:var(--border)}
+.timeline-item{position:relative;margin-bottom:22px}
+.timeline-dot{position:absolute;left:-24px;top:4px;width:10px;height:10px;border-radius:50%;border:2px solid var(--card);background:var(--gold);box-shadow:0 0 0 2px rgba(184,149,90,0.25)}
+.timeline-dot.blue{background:#3b82f6;box-shadow:0 0 0 2px rgba(59,130,246,0.25)}
+.timeline-dot.green{background:#22c55e;box-shadow:0 0 0 2px rgba(34,197,94,0.25)}
+.timeline-dot.purple{background:#8b5cf6;box-shadow:0 0 0 2px rgba(139,92,246,0.25)}
+.timeline-date{font-size:11px;color:var(--soft);margin-bottom:2px}
+.timeline-text{font-size:14px;color:var(--charcoal)}
+.timeline-detail{font-size:12px;color:var(--mid);margin-top:2px}
+
+/* ---- TOAST ---- */
+.toast-container{position:fixed;bottom:28px;right:28px;z-index:1000;display:flex;flex-direction:column;gap:10px;pointer-events:none}
+.toast{background:var(--charcoal);color:#fff;padding:14px 20px;border-radius:12px;font-size:13px;box-shadow:var(--shadow-lg);pointer-events:all;animation:slideIn 0.35s cubic-bezier(0.22,1,0.36,1);display:flex;align-items:center;gap:10px;max-width:320px}
+.toast.success{border-left:3px solid #22c55e}
+.toast.error{border-left:3px solid #ef4444}
+.toast.gold{border-left:3px solid var(--gold)}
+
+/* ---- AGENT CARD (ADMIN) ---- */
+.agent-row{display:grid;grid-template-columns:1fr 80px 80px 80px 100px 140px;gap:8px;align-items:center;padding:16px 20px;border-bottom:1px solid rgba(232,228,220,0.5);transition:background 0.15s}
+.agent-row:hover{background:rgba(250,250,247,0.8)}
+.agent-info{display:flex;align-items:center;gap:12px}
+.agent-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-dark));display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:15px;color:#fff;flex-shrink:0}
+.agent-name{font-size:14px;font-weight:500;color:var(--charcoal)}
+.agent-email{font-size:12px;color:var(--soft)}
+.col-num{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--charcoal);text-align:center}
+.col-label{font-size:11px;color:var(--soft);text-align:center}
+
+/* ---- EMPTY STATE ---- */
+.empty{text-align:center;padding:56px 24px}
+.empty-icon{font-size:40px;margin-bottom:14px;opacity:0.4}
+.empty-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400;color:var(--mid);margin-bottom:6px}
+.empty-sub{font-size:13px;color:var(--soft)}
+
+/* ---- SELECT / FILTER ---- */
+.filter-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+select.form-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' viewBox='0 0 24 24'%3E%3Cpath stroke='%239E9891' stroke-width='2' stroke-linecap='round' d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;width:auto;cursor:pointer}
+
+/* ---- CREDIT PILL ---- */
+.credit-pill{display:inline-flex;align-items:center;gap:5px;background:rgba(184,149,90,0.1);color:var(--gold-dark);border-radius:100px;padding:4px 11px;font-size:12px;font-weight:500}
+
+/* ---- RESPONSIVE ---- */
+@media(max-width:900px){
+  .sidebar{transform:translateX(-260px)}
+  .sidebar.open{transform:translateX(0)}
+  .main-content{margin-left:0}
+  .page{padding:24px 20px}
+  .topbar{padding:0 20px}
+  .stat-grid{grid-template-columns:1fr 1fr}
+  .auth-card{padding:36px 28px}
+  .agent-row{grid-template-columns:1fr auto}
+}
+@media(max-width:600px){
+  .stat-grid{grid-template-columns:1fr}
+  .progress-stats{gap:24px}
+  .page{padding:16px}
+}
+
+/* ---- MISC ---- */
+.divider{height:1px;background:var(--border);margin:24px 0}
+.text-gold{color:var(--gold)}
+.text-mid{color:var(--mid)}
+.text-sm{font-size:13px}
+.text-xs{font-size:11px}
+.fw-500{font-weight:500}
+.serif{font-family:'Cormorant Garamond',serif}
+.flex{display:flex}.items-center{align-items:center}.justify-between{justify-content:space-between}.gap-2{gap:8px}.gap-3{gap:12px}.gap-4{gap:16px}
+.mb-1{margin-bottom:4px}.mb-2{margin-bottom:8px}.mb-3{margin-bottom:12px}.mb-4{margin-bottom:16px}.mb-6{margin-bottom:24px}.mb-8{margin-bottom:32px}
+.mt-2{margin-top:8px}.mt-4{margin-top:16px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.w-full{width:100%}
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useRef,useCallback,createContext,useContext}=React;
+
+/* ============================================================
+   DATA LAYER — localStorage-backed (swap for Supabase calls)
+   ============================================================ */
+
+const DB_KEY='luxentra_db';
+
+const seed=()=>({
+  agents:[
+    {id:'a1',name:'Samantha Reid',email:'samantha@remax.com',password:'agent123',role:'agent',joinedAt:'2025-09-01',borough:'Manhattan'},
+    {id:'a2',name:'Marcus Chen',email:'marcus@compass.com',password:'agent123',role:'agent',joinedAt:'2025-10-12',borough:'Brooklyn'},
+    {id:'a3',name:'Priya Nair',email:'priya@kwrealty.com',password:'agent123',role:'agent',joinedAt:'2025-11-03',borough:'Queens'},
+  ],
+  listings:[
+    {id:'l1',agentId:'a1',address:'125 Park Ave, NYC',type:'Luxury Condo',status:'completed',date:'2025-12-01',credits:20},
+    {id:'l2',agentId:'a1',address:'88 W 72nd St, NYC',type:'Penthouse',status:'completed',date:'2025-12-15',credits:20},
+    {id:'l3',agentId:'a1',address:'400 E 67th St, NYC',type:'Townhouse',status:'completed',date:'2026-01-05',credits:20},
+    {id:'l4',agentId:'a1',address:'55 Water St, NYC',type:'Loft',status:'completed',date:'2026-01-22',credits:20},
+    {id:'l5',agentId:'a1',address:'1 Central Park W, NYC',type:'Luxury Condo',status:'completed',date:'2026-02-10',credits:20},
+    {id:'l6',agentId:'a2',address:'215 Adams St, Brooklyn',type:'Brownstone',status:'completed',date:'2025-12-20',credits:20},
+    {id:'l7',agentId:'a2',address:'90 Furman St, Brooklyn',type:'Condo',status:'completed',date:'2026-01-14',credits:20},
+    {id:'l8',agentId:'a3',address:'34-10 Queens Blvd',type:'Co-op',status:'completed',date:'2026-01-30',credits:20},
+  ],
+  redemptions:[
+    {id:'r1',agentId:'a1',date:'2026-01-10',package:'Basic Photography Package',credits:100,status:'redeemed'},
+  ],
+  admins:[
+    {id:'adm1',name:'Zee',email:'admin@luxentramedia.com',password:'admin2024',role:'admin'},
+  ],
+  creditAdjustments:[],
+});
+
+const getDB=()=>{try{const d=localStorage.getItem(DB_KEY);return d?JSON.parse(d):seed()}catch{return seed()}};
+const saveDB=db=>localStorage.setItem(DB_KEY,JSON.stringify(db));
+const initDB=()=>{if(!localStorage.getItem(DB_KEY))saveDB(seed());};
+
+/* helpers */
+const agentTotalListings=(db,agentId)=>db.listings.filter(l=>l.agentId===agentId&&l.status==='completed').length;
+const agentTotalCredits=(db,agentId)=>{
+  const earned=db.listings.filter(l=>l.agentId===agentId&&l.status==='completed').reduce((s,l)=>s+l.credits,0);
+  const adj=db.creditAdjustments.filter(a=>a.agentId===agentId).reduce((s,a)=>s+a.amount,0);
+  const spent=db.redemptions.filter(r=>r.agentId===agentId&&r.status==='redeemed').reduce((s,r)=>s+r.credits,0);
+  return earned+adj-spent;
+};
+const agentRedeemed=(db,agentId)=>db.redemptions.filter(r=>r.agentId===agentId&&r.status==='redeemed').length;
+const formatDate=d=>new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+const uid=()=>Math.random().toString(36).slice(2,9);
+
+/* ============================================================
+   CONTEXT
+   ============================================================ */
+const AppCtx=createContext(null);
+const useApp=()=>useContext(AppCtx);
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+let _addToast=null;
+function ToastProvider({children}){
+  const [toasts,setToasts]=useState([]);
+  _addToast=(msg,type='success')=>{
+    const id=uid();
+    setToasts(t=>[...t,{id,msg,type}]);
+    setTimeout(()=>setToasts(t=>t.filter(x=>x.id!==id)),3500);
+  };
+  return(<>
+    {children}
+    <div className="toast-container">
+      {toasts.map(t=>(
+        <div key={t.id} className={`toast ${t.type}`}>
+          <span>{t.type==='success'?'✓':t.type==='error'?'✕':'★'}</span>
+          {t.msg}
+        </div>
+      ))}
+    </div>
+  </>);
+}
+const toast=(msg,type)=>_addToast&&_addToast(msg,type);
+
+/* ============================================================
+   SVG ICONS
+   ============================================================ */
+const Icon=({n,s=18,c='currentColor'})=>{
+  const icons={
+    home:<svg width={s} height={s} fill="none" stroke={c} strokeWidth="1.7" viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>,
+    list:<svg width={s} height={s} fill="none" stroke={c} strokeWidth="1.7" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18M9 9v10"/></svg>,
+    credit:<svg width={s} height={s} fill="none" stroke={c} strokeWidth="1.7" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 10h4.5a1.5 1.5 0 010 3H9"/></svg>,
+    gift:<svg width={s} height={s} fill="none" stroke={c} strokeWidth="1.7" viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="12" rx="1"/><path d="M3 9h18M12 9V21M12 9C12 7 10 5 8 6s-1 3 0 3h4M12 9c0-2 2-4 4-3s1 3 0 3h-4"/></svg>,
+    users:<svg width={s} height={s} fill="none" stroke={c} strokeWidth="1.7" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-4 2.7-6 6-6s6 2 6 6"/><circle cx="17" cy="9" r="2.5"/><path d="M21 20c0-3-1.5-4.5-4-5"/></svg>,
+    settings:<svg width={s} height={s} fill="none" stroke={c} strokeWidth="1.7" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>,
+    logout:<svg width={s} height={s} fill="none" stroke={c} strokeWidth="1.7" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>,
+    plus:<svg width={s} height={s} fill="none" stroke={c} strokeWidth="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>,
+    search:<svg width={s} height={s} fill="none" stroke={c} strokeWidth="1.7" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>,
+    edit:<svg width={s} height={s} fill="none" stroke={c} strokeWidth="1.7" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>,
+    check:<svg width={s} height={s} fill="none" stroke={c} strokeWidth="2.2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>,
+    close:<svg width={s} height={s} fill="none" stroke={c} strokeWidth="2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>,
+    menu:<svg width={s} height={s} fill="none" stroke={c} strokeWidth="2" viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18"/></svg>,
+    star:<svg width={s} height={s} fill={c} viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>,
+    building:<svg width={s} height={s} fill="none" stroke={c} strokeWidth="1.7" viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-4h6v4"/><path d="M9 9h1M14 9h1M9 13h1M14 13h1"/></svg>,
+    chart:<svg width={s} height={s} fill="none" stroke={c} strokeWidth="1.7" viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>,
+    filter:<svg width={s} height={s} fill="none" stroke={c} strokeWidth="1.7" viewBox="0 0 24 24"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg>,
+  };
+  return icons[n]||null;
+};
+
+/* ============================================================
+   AUTH SCREEN
+   ============================================================ */
+function AuthScreen(){
+  const {login}=useApp();
+  const [tab,setTab]=useState('agent');/* agent | admin */
+  const [mode,setMode]=useState('login');/* login | signup */
+  const [form,setForm]=useState({name:'',email:'',password:'',borough:'Manhattan'});
+  const [err,setErr]=useState('');
+  const [loading,setLoading]=useState(false);
+
+  const boroughs=['Manhattan','Brooklyn','Queens','The Bronx','Staten Island','Long Island'];
+
+  const handle=async()=>{
+    setErr('');setLoading(true);
+    await new Promise(r=>setTimeout(r,600));
+    const db=getDB();
+    if(tab==='admin'){
+      const adm=db.admins.find(a=>a.email===form.email&&a.password===form.password);
+      if(!adm){setErr('Invalid admin credentials.');setLoading(false);return;}
+      login({...adm,role:'admin'});
+      toast('Welcome back, '+adm.name+' 👋');
+    } else if(mode==='login'){
+      const ag=db.agents.find(a=>a.email===form.email&&a.password===form.password);
+      if(!ag){setErr('Email or password is incorrect.');setLoading(false);return;}
+      login({...ag,role:'agent'});
+      toast('Welcome back, '+ag.name+' ✨');
+    } else {
+      if(!form.name||!form.email||!form.password){setErr('Please fill in all fields.');setLoading(false);return;}
+      if(db.agents.find(a=>a.email===form.email)){setErr('An account with this email already exists.');setLoading(false);return;}
+      const newAgent={id:uid(),name:form.name,email:form.email,password:form.password,role:'agent',joinedAt:new Date().toISOString().slice(0,10),borough:form.borough};
+      db.agents.push(newAgent);saveDB(db);
+      login({...newAgent,role:'agent'});
+      toast('Welcome to LuxEntra Partner Rewards! 🌟','gold');
+    }
+    setLoading(false);
+  };
+
+  const f=(k,v)=>setForm(p=>({...p,[k]:v}));
+
+  return(
+    <div className="auth-shell">
+      <div className="auth-card fade-up">
+        <div className="auth-logo">
+          <div className="auth-logo-icon">
+            <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+              <path d="M13 2L22 8v10L13 24 4 18V8L13 2z" stroke="white" strokeWidth="1.5" fill="none"/>
+              <path d="M13 7l5 3v6l-5 3-5-3V10l5-3z" fill="white" fillOpacity="0.85"/>
+            </svg>
+          </div>
+          <div className="serif" style={{fontSize:26,fontWeight:400,color:'var(--charcoal)'}}>LuxEntra</div>
+          <div style={{fontSize:11,color:'var(--soft)',letterSpacing:'0.12em',textTransform:'uppercase',marginTop:2}}>Partner Rewards</div>
+        </div>
+
+        <div className="tab-row">
+          <button className={`tab-btn ${tab==='agent'?'active':''}`} onClick={()=>{setTab('agent');setMode('login');setErr('')}}>Agent Portal</button>
+          <button className={`tab-btn ${tab==='admin'?'active':''}`} onClick={()=>{setTab('admin');setMode('login');setErr('')}}>Admin</button>
+        </div>
+
+        {tab==='agent'&&(
+          <div className="tab-row" style={{marginBottom:22}}>
+            <button className={`tab-btn ${mode==='login'?'active':''}`} onClick={()=>{setMode('login');setErr('')}}>Sign In</button>
+            <button className={`tab-btn ${mode==='signup'?'active':''}`} onClick={()=>{setMode('signup');setErr('')}}>Create Account</button>
+          </div>
+        )}
+
+        {mode==='signup'&&tab==='agent'&&(
+          <div className="form-group">
+            <label className="form-label">Full Name</label>
+            <input className="form-input" placeholder="Jane Smith" value={form.name} onChange={e=>f('name',e.target.value)}/>
+          </div>
+        )}
+        <div className="form-group">
+          <label className="form-label">Email Address</label>
+          <input className="form-input" type="email" placeholder={tab==='admin'?'admin@luxentramedia.com':'you@brokerage.com'} value={form.email} onChange={e=>f('email',e.target.value)}/>
+        </div>
+        <div className="form-group">
+          <label className="form-label">Password</label>
+          <input className="form-input" type="password" placeholder="••••••••" value={form.password} onChange={e=>f('password',e.target.value)}
+            onKeyDown={e=>e.key==='Enter'&&handle()}/>
+        </div>
+        {mode==='signup'&&tab==='agent'&&(
+          <div className="form-group">
+            <label className="form-label">Primary Borough</label>
+            <select className="form-input" value={form.borough} onChange={e=>f('borough',e.target.value)}>
+              {boroughs.map(b=><option key={b}>{b}</option>)}
+            </select>
+          </div>
+        )}
+        {err&&<div className="form-error mb-3">⚠ {err}</div>}
+        <button className="btn btn-primary" onClick={handle} disabled={loading} style={{marginTop:4}}>
+          {loading?<div className="spinner"/>:(tab==='admin'?'Access Dashboard':mode==='login'?'Sign In →':'Create Account →')}
+        </button>
+
+        {tab==='agent'&&(
+          <div className="auth-switch mt-4">
+            {mode==='login'?<>New partner? <a onClick={()=>{setMode('signup');setErr('')}}>Create a free account</a></>:<>Already a partner? <a onClick={()=>{setMode('login');setErr('')}}>Sign in</a></>}
+          </div>
+        )}
+
+        <div style={{marginTop:28,padding:16,background:'var(--warm-white)',borderRadius:10,fontSize:12,color:'var(--mid)'}}>
+          <div style={{fontWeight:500,marginBottom:6,color:'var(--charcoal)'}}>Demo credentials</div>
+          <div>Agent: samantha@remax.com / agent123</div>
+          <div>Admin: admin@luxentramedia.com / admin2024</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
+function Sidebar({user,page,setPage,open,setOpen}){
+  const {logout}=useApp();
+  const agentNav=[
+    {id:'dashboard',icon:'home',label:'Dashboard'},
+    {id:'listings',icon:'list',label:'My Listings'},
+    {id:'credits',icon:'credit',label:'Credit History'},
+    {id:'rewards',icon:'gift',label:'Rewards'},
+  ];
+  const adminNav=[
+    {id:'overview',icon:'chart',label:'Overview'},
+    {id:'agents',icon:'users',label:'Agents'},
+    {id:'listings',icon:'building',label:'Listings'},
+    {id:'rewards',icon:'gift',label:'Redemptions'},
+  ];
+  const nav=user.role==='admin'?adminNav:agentNav;
+  const initials=user.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+  return(
+    <div className={`sidebar${open?' open':''}`}>
+      <div className="sidebar-logo">
+        <div className="logo-mark">
+          <div className="logo-icon">
+            <svg width="18" height="18" viewBox="0 0 26 26" fill="none">
+              <path d="M13 2L22 8v10L13 24 4 18V8L13 2z" stroke="white" strokeWidth="1.5" fill="none"/>
+              <path d="M13 7l5 3v6l-5 3-5-3V10l5-3z" fill="white" fillOpacity="0.8"/>
+            </svg>
+          </div>
+          <div>
+            <div className="logo-text-l">LuxEntra</div>
+            <div className="logo-sub">Partner Rewards</div>
+          </div>
+        </div>
+      </div>
+      <nav className="sidebar-nav">
+        <div className="nav-section-label">{user.role==='admin'?'Administration':'My Account'}</div>
+        {nav.map(n=>(
+          <div key={n.id} className={`nav-item${page===n.id?' active':''}`} onClick={()=>{setPage(n.id);setOpen(false)}}>
+            <span className="nav-icon"><Icon n={n.icon} s={17}/></span>
+            {n.label}
+          </div>
+        ))}
+      </nav>
+      <div className="sidebar-footer">
+        <div className="user-chip">
+          <div className="user-avatar">{initials}</div>
+          <div style={{flex:1,minWidth:0}}>
+            <div className="user-name">{user.name}</div>
+            <div className="user-role">{user.role==='admin'?'Administrator':'Verified Partner'}</div>
+          </div>
+          <button className="logout-btn" onClick={logout} title="Sign out"><Icon n="logout" s={15}/></button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   AGENT — DASHBOARD
+   ============================================================ */
+function AgentDashboard({user}){
+  const [db,setDb]=useState(getDB);
+  const [showRedeem,setShowRedeem]=useState(false);
+  const refresh=()=>setDb(getDB());
+
+  const listings=db.listings.filter(l=>l.agentId===user.id&&l.status==='completed');
+  const totalListings=listings.length;
+  const credits=agentTotalCredits(db,user.id);
+  const redeemed=agentRedeemed(db,user.id);
+  const progressToNext=credits%100;
+  const canRedeem=credits>=100;
+  const recent=listings.slice(-5).reverse();
+
+  const handleRedeem=()=>{
+    if(!canRedeem)return;
+    const db2=getDB();
+    db2.redemptions.push({id:uid(),agentId:user.id,date:new Date().toISOString().slice(0,10),package:'Basic Photography Package',credits:100,status:'redeemed'});
+    saveDB(db2);refresh();setShowRedeem(false);
+    toast('🎉 Reward redeemed! Your complimentary shoot will be scheduled soon.','gold');
+  };
+
+  const creditHistory=[
+    ...db.listings.filter(l=>l.agentId===user.id&&l.status==='completed').map(l=>({id:l.id,date:l.date,desc:`Listing: ${l.address}`,amount:+20,type:'earn'})),
+    ...db.redemptions.filter(r=>r.agentId===user.id).map(r=>({id:r.id,date:r.date,desc:`Redeemed: ${r.package}`,amount:-100,type:'spend'})),
+    ...db.creditAdjustments.filter(a=>a.agentId===user.id).map(a=>({id:a.id,date:a.date,desc:`Admin adjustment: ${a.note||'Manual credit'}`,amount:a.amount,type:a.amount>0?'earn':'spend'})),
+  ].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,8);
+
+  const pct=Math.min(100,Math.round((progressToNext/100)*100));
+
+  return(
+    <div className="page">
+      <div className="mb-8 fade-up">
+        <div style={{fontSize:13,color:'var(--soft)',letterSpacing:'0.06em',textTransform:'uppercase',marginBottom:6}}>Good {new Date().getHours()<12?'morning':'afternoon'}</div>
+        <h1 className="serif" style={{fontSize:38,fontWeight:400,lineHeight:1.1}}>{user.name.split(' ')[0]}</h1>
+        <p style={{fontSize:15,color:'var(--mid)',marginTop:6}}>Here's your rewards progress and recent activity.</p>
+      </div>
+
+      {/* STAT CARDS */}
+      <div className="stat-grid fade-up" style={{animationDelay:'0.05s'}}>
+        <div className="stat-card">
+          <div className="stat-icon gold"><Icon n="building" s={20}/></div>
+          <div className="stat-value">{totalListings}</div>
+          <div className="stat-label">Total Listings</div>
+          <div className="stat-delta">{totalListings>0?`+${totalListings} all time`:''}</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon gold"><Icon n="credit" s={20}/></div>
+          <div className="stat-value">{credits}</div>
+          <div className="stat-label">Available Credits</div>
+          <div className={`stat-delta ${credits===0?'neutral':''}`}>{credits>0?`${Math.floor(credits/100)} reward${Math.floor(credits/100)!==1?'s':''} available`:'Earn 20 credits per listing'}</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon purple"><Icon n="gift" s={20}/></div>
+          <div className="stat-value">{redeemed}</div>
+          <div className="stat-label">Rewards Redeemed</div>
+          <div className="stat-delta neutral">Basic packages</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon green"><Icon n="chart" s={20}/></div>
+          <div className="stat-value">{Math.max(0,5-((totalListings)%5)||5)}</div>
+          <div className="stat-label">Listings to Next Reward</div>
+          <div className="stat-delta neutral">Every 5 listings = free shoot</div>
+        </div>
+      </div>
+
+      {/* PROGRESS CARD */}
+      <div className="progress-section fade-up" style={{animationDelay:'0.1s'}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',flexWrap:'wrap',gap:16}}>
+          <div>
+            <div className="progress-heading">Reward Progress</div>
+            <div className="progress-sub">100 credits = 1 complimentary basic package</div>
+          </div>
+          {canRedeem&&(
+            <button className="redeem-badge" onClick={()=>setShowRedeem(true)}>
+              <Icon n="star" s={14} c="#fff"/>
+              {Math.floor(credits/100)} Reward{Math.floor(credits/100)>1?'s':''} Ready to Redeem
+            </button>
+          )}
+        </div>
+        <div className="progress-bar-track">
+          <div className="progress-bar-fill" style={{'--target-width':`${pct}%`,width:`${pct}%`,animation:canRedeem?'none':'progressFill 1.4s 0.4s cubic-bezier(0.22,1,0.36,1) both',background:canRedeem?'linear-gradient(90deg,#22c55e,#4ade80)':undefined}}/>
+        </div>
+        <div className="progress-labels">
+          <span>{progressToNext} / 100 credits</span>
+          <span>{canRedeem?'✓ Eligible to redeem!':`${100-progressToNext} credits to next reward`}</span>
+        </div>
+        <div className="progress-stats">
+          <div className="p-stat"><div className="p-stat-val">{totalListings * 20}</div><div className="p-stat-label">Total Earned</div></div>
+          <div className="p-stat"><div className="p-stat-val">{redeemed * 100}</div><div className="p-stat-label">Total Spent</div></div>
+          <div className="p-stat"><div className="p-stat-val">{credits}</div><div className="p-stat-label">Net Balance</div></div>
+        </div>
+      </div>
+
+      <div className="grid-2 fade-up" style={{animationDelay:'0.15s',alignItems:'start'}}>
+        {/* RECENT LISTINGS */}
+        <div className="card">
+          <div className="section-header">
+            <div>
+              <div className="section-title">Recent Listings</div>
+              <div className="section-sub text-xs text-mid">Your completed shoots</div>
+            </div>
+          </div>
+          {recent.length===0?(
+            <div className="empty"><div className="empty-icon">📷</div><div className="empty-title">No listings yet</div><div className="empty-sub">Your completed shoots will appear here</div></div>
+          ):(
+            <div className="timeline">
+              {recent.map((l,i)=>(
+                <div className="timeline-item" key={l.id} style={{animationDelay:`${i*0.05}s`}}>
+                  <div className={`timeline-dot ${i===0?'green':'gold'}`}/>
+                  <div className="timeline-date">{formatDate(l.date)}</div>
+                  <div className="timeline-text">{l.address}</div>
+                  <div className="timeline-detail" style={{display:'flex',alignItems:'center',gap:8}}>
+                    <span>{l.type}</span>
+                    <span className="credit-pill">+20 credits</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* CREDIT HISTORY */}
+        <div className="card">
+          <div className="section-header">
+            <div>
+              <div className="section-title">Credit History</div>
+              <div className="section-sub text-xs text-mid">All transactions</div>
+            </div>
+          </div>
+          {creditHistory.length===0?(
+            <div className="empty"><div className="empty-icon">💳</div><div className="empty-title">No activity yet</div></div>
+          ):(
+            <div style={{display:'flex',flexDirection:'column',gap:12}}>
+              {creditHistory.map(h=>(
+                <div key={h.id} style={{display:'flex',justifyContent:'space-between',alignItems:'center',paddingBottom:12,borderBottom:'1px solid var(--border)'}}>
+                  <div>
+                    <div style={{fontSize:13,color:'var(--charcoal)'}}>{h.desc}</div>
+                    <div style={{fontSize:11,color:'var(--soft)',marginTop:2}}>{formatDate(h.date)}</div>
+                  </div>
+                  <div style={{fontFamily:'Cormorant Garamond,serif',fontSize:22,fontWeight:500,color:h.amount>0?'#22c55e':'#ef4444'}}>
+                    {h.amount>0?'+':''}{h.amount}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* REDEEM MODAL */}
+      {showRedeem&&(
+        <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&setShowRedeem(false)}>
+          <div className="modal">
+            <div style={{textAlign:'center',marginBottom:20}}>
+              <div style={{fontSize:48,marginBottom:12}}>🎁</div>
+              <div className="modal-title">Redeem Your Reward</div>
+              <div className="modal-sub">You have {Math.floor(credits/100)} reward{Math.floor(credits/100)>1?'s':''} available. Redeeming will use 100 credits for one complimentary Basic Photography Package.</div>
+            </div>
+            <div style={{background:'var(--warm-white)',borderRadius:12,padding:'18px 20px',marginBottom:8}}>
+              <div style={{fontWeight:500,marginBottom:8,fontSize:14}}>Basic Photography Package includes:</div>
+              <div style={{fontSize:13,color:'var(--mid)',lineHeight:1.8}}>
+                • Up to 25 professionally edited photos<br/>
+                • Standard property walk-through shoot<br/>
+                • 48-hour delivery turnaround<br/>
+                • MLS-ready file formats
+              </div>
+            </div>
+            <div style={{fontSize:12,color:'var(--soft)',marginBottom:20,textAlign:'center'}}>Our team will contact you within 24 hours to schedule your shoot.</div>
+            <div className="modal-actions" style={{justifyContent:'center',gap:12}}>
+              <button className="btn btn-outline" onClick={()=>setShowRedeem(false)}>Cancel</button>
+              <button className="btn btn-gold" onClick={handleRedeem}>
+                <Icon n="star" s={14} c="#fff"/>
+                Confirm Redemption (−100 credits)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ============================================================
+   AGENT — LISTINGS
+   ============================================================ */
+function AgentListings({user}){
+  const [db]=useState(getDB);
+  const listings=db.listings.filter(l=>l.agentId===user.id).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  return(
+    <div className="page">
+      <div className="mb-8 fade-up">
+        <h1 className="serif" style={{fontSize:36,fontWeight:400}}>My Listings</h1>
+        <p style={{fontSize:14,color:'var(--mid)',marginTop:6}}>All shoots completed through LuxEntra Media.</p>
+      </div>
+      {listings.length===0?(
+        <div className="card"><div className="empty"><div className="empty-icon">🏠</div><div className="empty-title">No listings yet</div><div className="empty-sub">Your shoots will appear here once assigned by your administrator.</div></div></div>
+      ):(
+        <div className="table-wrap fade-up" style={{animationDelay:'0.05s'}}>
+          <table>
+            <thead><tr><th>Address</th><th>Type</th><th>Date</th><th>Status</th><th>Credits</th></tr></thead>
+            <tbody>
+              {listings.map(l=>(
+                <tr key={l.id}>
+                  <td style={{fontWeight:500}}>{l.address}</td>
+                  <td style={{color:'var(--mid)'}}>{l.type}</td>
+                  <td style={{color:'var(--mid)'}}>{formatDate(l.date)}</td>
+                  <td><span className={`badge ${l.status}`}><span style={{width:5,height:5,borderRadius:'50%',background:l.status==='completed'?'#22c55e':'#f59e0b',display:'inline-block'}}/>  {l.status}</span></td>
+                  <td><span className="credit-pill">+{l.credits}</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ============================================================
+   AGENT — REWARDS
+   ============================================================ */
+function AgentRewards({user}){
+  const [db,setDb]=useState(getDB);
+  const credits=agentTotalCredits(db,user.id);
+  const canRedeem=credits>=100;
+  const [showRedeem,setShowRedeem]=useState(false);
+  const redemptions=db.redemptions.filter(r=>r.agentId===user.id).sort((a,b)=>new Date(b.date)-new Date(a.date));
+
+  const handleRedeem=()=>{
+    if(!canRedeem)return;
+    const db2=getDB();
+    db2.redemptions.push({id:uid(),agentId:user.id,date:new Date().toISOString().slice(0,10),package:'Basic Photography Package',credits:100,status:'redeemed'});
+    saveDB(db2);setDb(getDB());setShowRedeem(false);
+    toast('🎉 Reward redeemed! We\'ll be in touch to schedule your shoot.','gold');
+  };
+
+  return(
+    <div className="page">
+      <div className="mb-8 fade-up">
+        <h1 className="serif" style={{fontSize:36,fontWeight:400}}>Rewards</h1>
+        <p style={{fontSize:14,color:'var(--mid)',marginTop:6}}>Every 5 completed listings earns one complimentary shoot.</p>
+      </div>
+
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))',gap:20,marginBottom:28}} className="fade-up">
+        <div className="card" style={{borderColor:canRedeem?'var(--gold)':'var(--border)',background:canRedeem?'linear-gradient(135deg,#fffdf5,#fff)':'var(--card)',boxShadow:canRedeem?'0 8px 32px rgba(184,149,90,0.15)':undefined,position:'relative',overflow:'hidden'}}>
+          {canRedeem&&<div style={{position:'absolute',top:0,left:0,right:0,height:3,background:'linear-gradient(90deg,var(--gold),var(--gold-light))'}}/>}
+          <div style={{fontSize:36,marginBottom:12}}>📷</div>
+          <div className="serif" style={{fontSize:22,fontWeight:500,marginBottom:6}}>Basic Photography Package</div>
+          <div style={{fontSize:13,color:'var(--mid)',lineHeight:1.7,marginBottom:20}}>
+            Up to 25 professionally edited photos, standard walk-through, 48-hour turnaround, MLS-ready formats.
+          </div>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',paddingTop:16,borderTop:'1px solid var(--border)'}}>
+            <div><span className="serif" style={{fontSize:28,fontWeight:400,color:'var(--gold-dark)'}}>100</span> <span style={{fontSize:13,color:'var(--mid)'}}>credits</span></div>
+            <button className="btn btn-gold btn-sm" onClick={()=>setShowRedeem(true)} disabled={!canRedeem}>
+              {canRedeem?'Redeem Now':'Not Enough Credits'}
+            </button>
+          </div>
+        </div>
+        <div className="card" style={{opacity:0.6}}>
+          <div style={{fontSize:36,marginBottom:12}}>🎬</div>
+          <div className="serif" style={{fontSize:22,fontWeight:500,marginBottom:6}}>Video Walkthrough</div>
+          <div style={{fontSize:13,color:'var(--mid)',lineHeight:1.7,marginBottom:20}}>Professional cinematic video tour, drone footage, and music overlay. Coming soon.</div>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',paddingTop:16,borderTop:'1px solid var(--border)'}}>
+            <div><span className="serif" style={{fontSize:28,fontWeight:400,color:'var(--gold-dark)'}}>250</span> <span style={{fontSize:13,color:'var(--mid)'}}>credits</span></div>
+            <button className="btn btn-outline btn-sm" disabled>Coming Soon</button>
+          </div>
+        </div>
+      </div>
+
+      {/* Redemption history */}
+      <div className="card fade-up" style={{animationDelay:'0.1s'}}>
+        <div className="section-header mb-4">
+          <div><div className="section-title">Redemption History</div><div className="section-sub text-xs">Your past reward redemptions</div></div>
+        </div>
+        {redemptions.length===0?(
+          <div className="empty"><div className="empty-icon">🎁</div><div className="empty-title">No redemptions yet</div><div className="empty-sub">Earn 100 credits to redeem your first complimentary shoot.</div></div>
+        ):(
+          <div className="table-wrap"><table>
+            <thead><tr><th>Package</th><th>Date</th><th>Credits Used</th><th>Status</th></tr></thead>
+            <tbody>{redemptions.map(r=>(
+              <tr key={r.id}>
+                <td style={{fontWeight:500}}>{r.package}</td>
+                <td style={{color:'var(--mid)'}}>{formatDate(r.date)}</td>
+                <td><span style={{color:'#8b5cf6',fontFamily:'Cormorant Garamond,serif',fontSize:18}}>−{r.credits}</span></td>
+                <td><span className="badge redeemed">✓ {r.status}</span></td>
+              </tr>
+            ))}</tbody>
+          </table></div>
+        )}
+      </div>
+
+      {showRedeem&&(
+        <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&setShowRedeem(false)}>
+          <div className="modal">
+            <div style={{textAlign:'center',marginBottom:20}}><div style={{fontSize:48,marginBottom:12}}>🎉</div>
+            <div className="modal-title">Confirm Redemption</div>
+            <div className="modal-sub">This will deduct 100 credits from your balance for one Basic Photography Package.</div></div>
+            <div className="modal-actions" style={{justifyContent:'center'}}>
+              <button className="btn btn-outline" onClick={()=>setShowRedeem(false)}>Cancel</button>
+              <button className="btn btn-gold" onClick={handleRedeem}><Icon n="check" s={14} c="#fff"/>Redeem</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ============================================================
+   ADMIN — OVERVIEW
+   ============================================================ */
+function AdminOverview(){
+  const [db]=useState(getDB);
+  const totalAgents=db.agents.length;
+  const totalListings=db.listings.filter(l=>l.status==='completed').length;
+  const totalRedemptions=db.redemptions.length;
+  const totalCreditsInCirculation=db.agents.reduce((s,a)=>s+Math.max(0,agentTotalCredits(db,a.id)),0);
+
+  const topAgents=[...db.agents].map(a=>({...a,listings:agentTotalListings(db,a.id),credits:agentTotalCredits(db,a.id)})).sort((a,b)=>b.listings-a.listings).slice(0,5);
+
+  return(
+    <div className="page">
+      <div className="mb-8 fade-up">
+        <div style={{fontSize:11,color:'var(--soft)',letterSpacing:'0.12em',textTransform:'uppercase',marginBottom:6}}>Administration</div>
+        <h1 className="serif" style={{fontSize:38,fontWeight:400}}>Platform Overview</h1>
+        <p style={{fontSize:14,color:'var(--mid)',marginTop:6}}>{new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</p>
+      </div>
+      <div className="stat-grid fade-up" style={{animationDelay:'0.05s'}}>
+        <div className="stat-card"><div className="stat-icon blue"><Icon n="users" s={20}/></div><div className="stat-value">{totalAgents}</div><div className="stat-label">Active Agents</div></div>
+        <div className="stat-card"><div className="stat-icon green"><Icon n="building" s={20}/></div><div className="stat-value">{totalListings}</div><div className="stat-label">Completed Shoots</div></div>
+        <div className="stat-card"><div className="stat-icon gold"><Icon n="credit" s={20}/></div><div className="stat-value">{totalCreditsInCirculation}</div><div className="stat-label">Credits in Circulation</div></div>
+        <div className="stat-card"><div className="stat-icon purple"><Icon n="gift" s={20}/></div><div className="stat-value">{totalRedemptions}</div><div className="stat-label">Rewards Redeemed</div></div>
+      </div>
+      <div className="card fade-up" style={{animationDelay:'0.1s'}}>
+        <div className="section-header mb-4"><div><div className="section-title">Top Performing Agents</div><div className="section-sub text-xs">Ranked by listings</div></div></div>
+        {topAgents.length===0?<div className="empty"><div className="empty-icon">👥</div><div className="empty-title">No agents yet</div></div>:(
+          <div className="table-wrap"><table>
+            <thead><tr><th>Agent</th><th>Borough</th><th>Listings</th><th>Credits</th><th>Redeemed</th></tr></thead>
+            <tbody>{topAgents.map((a,i)=>(
+              <tr key={a.id}>
+                <td><div style={{display:'flex',alignItems:'center',gap:10}}>
+                  <div style={{width:28,height:28,borderRadius:'50%',background:`linear-gradient(135deg,var(--gold),var(--gold-dark))`,display:'flex',alignItems:'center',just-content:'center',fontSize:12,color:'#fff',fontFamily:'Cormorant Garamond,serif',flexShrink:0}}>
+                    {a.name.split(' ').map(n=>n[0]).join('').slice(0,2)}
+                  </div>
+                  <div><div style={{fontWeight:500,fontSize:14}}>{a.name}</div><div style={{fontSize:11,color:'var(--soft)'}}>{a.email}</div></div>
+                </div></td>
+                <td style={{color:'var(--mid)',fontSize:13}}>{a.borough}</td>
+                <td><span className="serif" style={{fontSize:20}}>{a.listings}</span></td>
+                <td><span className="credit-pill">{a.credits}</span></td>
+                <td><span style={{color:'#8b5cf6',fontFamily:'Cormorant Garamond,serif',fontSize:18}}>{agentRedeemed(db,a.id)}</span></td>
+              </tr>
+            ))}</tbody>
+          </table></div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   ADMIN — AGENTS
+   ============================================================ */
+function AdminAgents(){
+  const [db,setDb]=useState(getDB);
+  const [search,setSearch]=useState('');
+  const [showAdd,setShowAdd]=useState(false);
+  const [showEdit,setShowEdit]=useState(null);
+  const [showCredit,setShowCredit]=useState(null);
+  const [form,setForm]=useState({name:'',email:'',password:'',borough:'Manhattan'});
+  const [creditForm,setCreditForm]=useState({amount:'',note:''});
+  const boroughs=['Manhattan','Brooklyn','Queens','The Bronx','Staten Island','Long Island'];
+  const refresh=()=>setDb(getDB());
+  const f=(k,v)=>setForm(p=>({...p,[k]:v}));
+
+  const filtered=db.agents.filter(a=>a.name.toLowerCase().includes(search.toLowerCase())||a.email.toLowerCase().includes(search.toLowerCase()));
+
+  const handleAdd=()=>{
+    if(!form.name||!form.email||!form.password){toast('Please fill all fields.','error');return;}
+    const db2=getDB();
+    if(db2.agents.find(a=>a.email===form.email)){toast('Email already exists.','error');return;}
+    db2.agents.push({id:uid(),name:form.name,email:form.email,password:form.password,role:'agent',joinedAt:new Date().toISOString().slice(0,10),borough:form.borough});
+    saveDB(db2);refresh();setShowAdd(false);setForm({name:'',email:'',password:'',borough:'Manhattan'});
+    toast('Agent added successfully.');
+  };
+  const handleEdit=()=>{
+    if(!showEdit)return;
+    const db2=getDB();
+    const idx=db2.agents.findIndex(a=>a.id===showEdit.id);
+    if(idx>=0){db2.agents[idx]={...db2.agents[idx],...form};}
+    saveDB(db2);refresh();setShowEdit(null);
+    toast('Agent updated.');
+  };
+  const handleDelete=(id)=>{
+    if(!confirm('Delete this agent? This cannot be undone.'))return;
+    const db2=getDB();
+    db2.agents=db2.agents.filter(a=>a.id!==id);
+    saveDB(db2);refresh();toast('Agent removed.','error');
+  };
+  const handleCreditAdj=()=>{
+    const amt=parseInt(creditForm.amount);
+    if(isNaN(amt)||amt===0){toast('Enter a valid amount.','error');return;}
+    const db2=getDB();
+    db2.creditAdjustments.push({id:uid(),agentId:showCredit.id,amount:amt,note:creditForm.note,date:new Date().toISOString().slice(0,10)});
+    saveDB(db2);refresh();setShowCredit(null);setCreditForm({amount:'',note:''});
+    toast(`${amt>0?'+':''}${amt} credits applied to ${showCredit.name}.`,'gold');
+  };
+
+  return(
+    <div className="page">
+      <div className="mb-6 fade-up flex justify-between items-center flex-wrap gap-3">
+        <div><h1 className="serif" style={{fontSize:36,fontWeight:400}}>Agents</h1><p style={{fontSize:14,color:'var(--mid)',marginTop:4}}>Manage all partner agents.</p></div>
+        <button className="btn btn-primary btn-sm" onClick={()=>{setShowAdd(true);setForm({name:'',email:'',password:'',borough:'Manhattan'})}}><Icon n="plus" s={15} c="#fff"/> Add Agent</button>
+      </div>
+      <div className="mb-4 fade-up" style={{animationDelay:'0.05s'}}>
+        <div className="search-wrap" style={{display:'inline-block'}}>
+          <span className="search-icon"><Icon n="search" s={15}/></span>
+          <input className="search-input" placeholder="Search agents…" value={search} onChange={e=>setSearch(e.target.value)}/>
+        </div>
+      </div>
+      {filtered.length===0?<div className="card"><div className="empty"><div className="empty-icon">👥</div><div className="empty-title">No agents found</div></div></div>:(
+        <div className="table-wrap fade-up" style={{animationDelay:'0.1s'}}><table>
+          <thead><tr><th>Agent</th><th>Borough</th><th>Joined</th><th>Listings</th><th>Credits</th><th>Actions</th></tr></thead>
+          <tbody>{filtered.map(a=>{
+            const tl=agentTotalListings(db,a.id);
+            const cr=agentTotalCredits(db,a.id);
+            return(
+              <tr key={a.id}>
+                <td><div style={{display:'flex',alignItems:'center',gap:10}}>
+                  <div style={{width:36,height:36,borderRadius:'50%',background:'linear-gradient(135deg,var(--gold),var(--gold-dark))',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,color:'#fff',fontFamily:'Cormorant Garamond,serif',flexShrink:0}}>
+                    {a.name.split(' ').map(n=>n[0]).join('').slice(0,2)}
+                  </div>
+                  <div><div style={{fontWeight:500}}>{a.name}</div><div style={{fontSize:12,color:'var(--soft)'}}>{a.email}</div></div>
+                </div></td>
+                <td style={{color:'var(--mid)',fontSize:13}}>{a.borough}</td>
+                <td style={{color:'var(--mid)',fontSize:13}}>{formatDate(a.joinedAt)}</td>
+                <td><span className="serif" style={{fontSize:20}}>{tl}</span></td>
+                <td><span className="credit-pill">{cr}</span></td>
+                <td><div style={{display:'flex',gap:6}}>
+                  <button className="btn btn-outline btn-sm" onClick={()=>{setShowEdit(a);setForm({name:a.name,email:a.email,password:a.password,borough:a.borough})}} title="Edit"><Icon n="edit" s={13}/></button>
+                  <button className="btn btn-outline btn-sm" style={{color:'var(--gold-dark)',borderColor:'rgba(184,149,90,0.3)'}} onClick={()=>setShowCredit(a)} title="Adjust Credits">±</button>
+                  <button className="btn btn-danger btn-sm" onClick={()=>handleDelete(a.id)} title="Delete"><Icon n="close" s={13}/></button>
+                </div></td>
+              </tr>
+            );
+          })}</tbody>
+        </table></div>
+      )}
+
+      {/* ADD / EDIT MODAL */}
+      {(showAdd||showEdit)&&(
+        <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&(setShowAdd(false)||setShowEdit(null))}>
+          <div className="modal">
+            <div className="modal-title">{showAdd?'Add New Agent':'Edit Agent'}</div>
+            <div className="modal-sub">{showAdd?'Create a new partner agent account.':'Update agent information.'}</div>
+            <div className="form-group"><label className="form-label">Full Name</label><input className="form-input" value={form.name} onChange={e=>f('name',e.target.value)} placeholder="Jane Smith"/></div>
+            <div className="form-group"><label className="form-label">Email</label><input className="form-input" type="email" value={form.email} onChange={e=>f('email',e.target.value)} placeholder="agent@brokerage.com"/></div>
+            <div className="form-group"><label className="form-label">Password</label><input className="form-input" type="password" value={form.password} onChange={e=>f('password',e.target.value)} placeholder="••••••••"/></div>
+            <div className="form-group"><label className="form-label">Borough</label><select className="form-input" value={form.borough} onChange={e=>f('borough',e.target.value)}>{boroughs.map(b=><option key={b}>{b}</option>)}</select></div>
+            <div className="modal-actions">
+              <button className="btn btn-outline" onClick={()=>{setShowAdd(false);setShowEdit(null)}}>Cancel</button>
+              <button className="btn btn-primary" onClick={showAdd?handleAdd:handleEdit}>{showAdd?'Add Agent':'Save Changes'}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CREDIT ADJUSTMENT MODAL */}
+      {showCredit&&(
+        <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&setShowCredit(null)}>
+          <div className="modal">
+            <div className="modal-title">Adjust Credits</div>
+            <div className="modal-sub">Manually add or deduct credits for {showCredit.name}. Current balance: <strong>{agentTotalCredits(db,showCredit.id)}</strong></div>
+            <div className="form-group"><label className="form-label">Amount (use − for deduction)</label><input className="form-input" type="number" value={creditForm.amount} onChange={e=>setCreditForm(p=>({...p,amount:e.target.value}))} placeholder="e.g. 20 or -20"/></div>
+            <div className="form-group"><label className="form-label">Note (optional)</label><input className="form-input" value={creditForm.note} onChange={e=>setCreditForm(p=>({...p,note:e.target.value}))} placeholder="Reason for adjustment"/></div>
+            <div className="modal-actions">
+              <button className="btn btn-outline" onClick={()=>setShowCredit(null)}>Cancel</button>
+              <button className="btn btn-gold" onClick={handleCreditAdj}>Apply Adjustment</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ============================================================
+   ADMIN — LISTINGS
+   ============================================================ */
+function AdminListings(){
+  const [db,setDb]=useState(getDB);
+  const [search,setSearch]=useState('');
+  const [filterAgent,setFilterAgent]=useState('all');
+  const [showAdd,setShowAdd]=useState(false);
+  const [form,setForm]=useState({agentId:'',address:'',type:'Luxury Condo',date:new Date().toISOString().slice(0,10)});
+  const types=['Luxury Condo','Penthouse','Townhouse','Brownstone','Loft','Co-op','Single Family','Multi-Family'];
+  const refresh=()=>setDb(getDB());
+  const f=(k,v)=>setForm(p=>({...p,[k]:v}));
+
+  const allListings=db.listings.sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const filtered=allListings.filter(l=>{
+    const agent=db.agents.find(a=>a.id===l.agentId);
+    const matchSearch=l.address.toLowerCase().includes(search.toLowerCase())||(agent&&agent.name.toLowerCase().includes(search.toLowerCase()));
+    const matchAgent=filterAgent==='all'||l.agentId===filterAgent;
+    return matchSearch&&matchAgent;
+  });
+
+  const handleAdd=()=>{
+    if(!form.agentId||!form.address){toast('Fill in all required fields.','error');return;}
+    const db2=getDB();
+    db2.listings.push({id:uid(),agentId:form.agentId,address:form.address,type:form.type,status:'completed',date:form.date,credits:20});
+    saveDB(db2);refresh();setShowAdd(false);setForm({agentId:'',address:'',type:'Luxury Condo',date:new Date().toISOString().slice(0,10)});
+    const agent=db2.agents.find(a=>a.id===form.agentId);
+    toast(`Listing added for ${agent?.name||'agent'} (+20 credits).`,'gold');
+  };
+
+  const handleDelete=(id)=>{
+    if(!confirm('Remove this listing? Credits will be recalculated.'))return;
+    const db2=getDB();
+    db2.listings=db2.listings.filter(l=>l.id!==id);
+    saveDB(db2);refresh();toast('Listing removed.','error');
+  };
+
+  return(
+    <div className="page">
+      <div className="mb-6 fade-up flex justify-between items-center flex-wrap gap-3">
+        <div><h1 className="serif" style={{fontSize:36,fontWeight:400}}>Listings</h1><p style={{fontSize:14,color:'var(--mid)',marginTop:4}}>All completed shoots across all agents.</p></div>
+        <button className="btn btn-primary btn-sm" onClick={()=>setShowAdd(true)}><Icon n="plus" s={15} c="#fff"/> Add Listing</button>
+      </div>
+      <div className="flex gap-3 mb-4 fade-up flex-wrap" style={{animationDelay:'0.05s'}}>
+        <div className="search-wrap"><span className="search-icon"><Icon n="search" s={15}/></span><input className="search-input" placeholder="Search listings…" value={search} onChange={e=>setSearch(e.target.value)}/></div>
+        <select className="form-input" value={filterAgent} onChange={e=>setFilterAgent(e.target.value)}>
+          <option value="all">All Agents</option>
+          {db.agents.map(a=><option key={a.id} value={a.id}>{a.name}</option>)}
+        </select>
+      </div>
+      {filtered.length===0?<div className="card"><div className="empty"><div className="empty-icon">🏠</div><div className="empty-title">No listings found</div></div></div>:(
+        <div className="table-wrap fade-up" style={{animationDelay:'0.1s'}}><table>
+          <thead><tr><th>Address</th><th>Agent</th><th>Type</th><th>Date</th><th>Credits</th><th>Status</th><th></th></tr></thead>
+          <tbody>{filtered.map(l=>{
+            const agent=db.agents.find(a=>a.id===l.agentId);
+            return(
+              <tr key={l.id}>
+                <td style={{fontWeight:500,maxWidth:200}}>{l.address}</td>
+                <td style={{fontSize:13}}>{agent?.name||<span style={{color:'var(--soft)'}}>Unknown</span>}</td>
+                <td style={{color:'var(--mid)',fontSize:13}}>{l.type}</td>
+                <td style={{color:'var(--mid)',fontSize:13}}>{formatDate(l.date)}</td>
+                <td><span className="credit-pill">+{l.credits}</span></td>
+                <td><span className="badge completed">✓ Completed</span></td>
+                <td><button className="btn btn-danger btn-sm" onClick={()=>handleDelete(l.id)}><Icon n="close" s={13}/></button></td>
+              </tr>
+            );
+          })}</tbody>
+        </table></div>
+      )}
+
+      {showAdd&&(
+        <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&setShowAdd(false)}>
+          <div className="modal">
+            <div className="modal-title">Add New Listing</div>
+            <div className="modal-sub">Assigning a completed listing automatically awards 20 credits to the agent.</div>
+            <div className="form-group"><label className="form-label">Agent *</label>
+              <select className="form-input" value={form.agentId} onChange={e=>f('agentId',e.target.value)}>
+                <option value="">Select agent…</option>
+                {db.agents.map(a=><option key={a.id} value={a.id}>{a.name}</option>)}
+              </select>
+            </div>
+            <div className="form-group"><label className="form-label">Property Address *</label><input className="form-input" value={form.address} onChange={e=>f('address',e.target.value)} placeholder="123 Park Ave, NYC"/></div>
+            <div className="form-group"><label className="form-label">Property Type</label>
+              <select className="form-input" value={form.type} onChange={e=>f('type',e.target.value)}>{types.map(t=><option key={t}>{t}</option>)}</select>
+            </div>
+            <div className="form-group"><label className="form-label">Shoot Date</label><input className="form-input" type="date" value={form.date} onChange={e=>f('date',e.target.value)}/></div>
+            <div style={{background:'rgba(184,149,90,0.08)',borderRadius:10,padding:'12px 14px',fontSize:13,color:'var(--gold-dark)',marginBottom:4}}>
+              ★ This listing will automatically add <strong>+20 credits</strong> to the selected agent.
+            </div>
+            <div className="modal-actions">
+              <button className="btn btn-outline" onClick={()=>setShowAdd(false)}>Cancel</button>
+              <button className="btn btn-gold" onClick={handleAdd}><Icon n="plus" s={14} c="#fff"/>Add Listing (+20 credits)</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ============================================================
+   ADMIN — REDEMPTIONS
+   ============================================================ */
+function AdminRedemptions(){
+  const [db,setDb]=useState(getDB);
+  const refresh=()=>setDb(getDB());
+  const redemptions=[...db.redemptions].sort((a,b)=>new Date(b.date)-new Date(a.date));
+
+  const markScheduled=(id)=>{
+    const db2=getDB();
+    const r=db2.redemptions.find(r=>r.id===id);
+    if(r)r.status='scheduled';
+    saveDB(db2);refresh();toast('Marked as scheduled.');
+  };
+
+  return(
+    <div className="page">
+      <div className="mb-8 fade-up">
+        <h1 className="serif" style={{fontSize:36,fontWeight:400}}>Redemptions</h1>
+        <p style={{fontSize:14,color:'var(--mid)',marginTop:6}}>All reward redemptions across the platform.</p>
+      </div>
+      {redemptions.length===0?(
+        <div className="card"><div className="empty"><div className="empty-icon">🎁</div><div className="empty-title">No redemptions yet</div><div className="empty-sub">When agents redeem rewards, they'll appear here.</div></div></div>
+      ):(
+        <div className="table-wrap fade-up"><table>
+          <thead><tr><th>Agent</th><th>Package</th><th>Date</th><th>Credits Used</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody>{redemptions.map(r=>{
+            const agent=db.agents.find(a=>a.id===r.agentId);
+            return(
+              <tr key={r.id}>
+                <td><div style={{fontWeight:500}}>{agent?.name||'Unknown'}</div><div style={{fontSize:12,color:'var(--soft)'}}>{agent?.email}</div></td>
+                <td style={{fontSize:13}}>{r.package}</td>
+                <td style={{color:'var(--mid)',fontSize:13}}>{formatDate(r.date)}</td>
+                <td><span style={{color:'#8b5cf6',fontFamily:'Cormorant Garamond,serif',fontSize:20}}>−{r.credits}</span></td>
+                <td><span className={`badge ${r.status==='scheduled'?'completed':'redeemed'}`}>{r.status==='scheduled'?'✓ Scheduled':'⏳ Pending Schedule'}</span></td>
+                <td>{r.status!=='scheduled'&&<button className="btn btn-outline btn-sm" onClick={()=>markScheduled(r.id)}><Icon n="check" s={13}/>Mark Scheduled</button>}</td>
+              </tr>
+            );
+          })}</tbody>
+        </table></div>
+      )}
+    </div>
+  );
+}
+
+/* ============================================================
+   AGENT CREDITS PAGE
+   ============================================================ */
+function AgentCredits({user}){
+  const [db]=useState(getDB);
+  const credits=agentTotalCredits(db,user.id);
+  const history=[
+    ...db.listings.filter(l=>l.agentId===user.id&&l.status==='completed').map(l=>({id:l.id,date:l.date,desc:`Listing completed: ${l.address}`,type:'Earned',amount:+20,color:'#22c55e'})),
+    ...db.redemptions.filter(r=>r.agentId===user.id).map(r=>({id:r.id,date:r.date,desc:`Redeemed: ${r.package}`,type:'Spent',amount:-100,color:'#8b5cf6'})),
+    ...db.creditAdjustments.filter(a=>a.agentId===user.id).map(a=>({id:a.id,date:a.date,desc:`Admin adjustment${a.note?`: ${a.note}`:''}`,type:'Adjustment',amount:a.amount,color:a.amount>0?'#22c55e':'#ef4444'})),
+  ].sort((a,b)=>new Date(b.date)-new Date(a.date));
+
+  return(
+    <div className="page">
+      <div className="mb-8 fade-up">
+        <h1 className="serif" style={{fontSize:36,fontWeight:400}}>Credit History</h1>
+        <p style={{fontSize:14,color:'var(--mid)',marginTop:6}}>Every credit earned and spent.</p>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'200px 1fr',gap:20,alignItems:'start'}} className="fade-up">
+        <div className="card" style={{textAlign:'center',background:'linear-gradient(135deg,var(--charcoal),#2a2520)'}}>
+          <div style={{fontSize:11,color:'rgba(255,255,255,0.4)',letterSpacing:'0.1em',textTransform:'uppercase',marginBottom:8}}>Balance</div>
+          <div className="serif" style={{fontSize:52,fontWeight:400,color:'var(--gold-light)',lineHeight:1}}>{credits}</div>
+          <div style={{fontSize:12,color:'rgba(255,255,255,0.35)',marginTop:6}}>Available Credits</div>
+        </div>
+        <div className="card">
+          <div className="section-title mb-4">All Transactions</div>
+          {history.length===0?<div className="empty"><div className="empty-icon">💳</div><div className="empty-title">No transactions yet</div></div>:(
+            <div className="table-wrap"><table>
+              <thead><tr><th>Description</th><th>Type</th><th>Date</th><th>Amount</th></tr></thead>
+              <tbody>{history.map(h=>(
+                <tr key={h.id}>
+                  <td style={{fontSize:13}}>{h.desc}</td>
+                  <td><span className={`badge ${h.type==='Earned'?'completed':h.type==='Spent'?'redeemed':'pending'}`}>{h.type}</span></td>
+                  <td style={{color:'var(--mid)',fontSize:13}}>{formatDate(h.date)}</td>
+                  <td><span style={{fontFamily:'Cormorant Garamond,serif',fontSize:22,fontWeight:500,color:h.color}}>{h.amount>0?'+':''}{h.amount}</span></td>
+                </tr>
+              ))}</tbody>
+            </table></div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   APP SHELL
+   ============================================================ */
+function AppShell({user}){
+  const [page,setPage]=useState(user.role==='admin'?'overview':'dashboard');
+  const [sidebarOpen,setSidebarOpen]=useState(false);
+
+  const pageTitle={
+    dashboard:'Dashboard',listings:'Listings',credits:'Credit History',rewards:'Rewards',
+    overview:'Overview',agents:'Agents',redemptions:'Redemptions'
+  }[page]||page;
+
+  const renderPage=()=>{
+    if(user.role==='agent'){
+      if(page==='dashboard')return<AgentDashboard user={user}/>;
+      if(page==='listings')return<AgentListings user={user}/>;
+      if(page==='credits')return<AgentCredits user={user}/>;
+      if(page==='rewards')return<AgentRewards user={user}/>;
+    } else {
+      if(page==='overview')return<AdminOverview/>;
+      if(page==='agents')return<AdminAgents/>;
+      if(page==='listings')return<AdminListings/>;
+      if(page==='rewards')return<AdminRedemptions/>;
+    }
+    return null;
+  };
+
+  return(
+    <div className="app-shell">
+      <Sidebar user={user} page={page} setPage={setPage} open={sidebarOpen} setOpen={setSidebarOpen}/>
+      <div className="main-content">
+        <div className="topbar">
+          <button style={{display:'none',background:'none',border:'none',cursor:'pointer',color:'var(--charcoal)',marginRight:8,padding:4}} className="menu-btn" onClick={()=>setSidebarOpen(o=>!o)}>
+            <Icon n="menu" s={20}/>
+          </button>
+          <div className="topbar-title serif">{pageTitle}</div>
+          <div className="topbar-actions">
+            {user.role==='agent'&&(
+              <div className="credit-pill" style={{fontSize:13,padding:'6px 14px'}}>
+                <Icon n="credit" s={13} c="var(--gold-dark)"/>
+                {agentTotalCredits(getDB(),user.id)} credits
+              </div>
+            )}
+            {user.role==='admin'&&(
+              <div style={{fontSize:12,color:'var(--mid)',background:'var(--warm-white)',borderRadius:8,padding:'6px 12px',border:'1px solid var(--border)'}}>
+                Admin Mode
+              </div>
+            )}
+          </div>
+        </div>
+        {renderPage()}
+      </div>
+      {sidebarOpen&&<div onClick={()=>setSidebarOpen(false)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.4)',zIndex:99,backdropFilter:'blur(4px)'}}/>}
+    </div>
+  );
+}
+
+/* ============================================================
+   ROOT
+   ============================================================ */
+function App(){
+  const [user,setUser]=useState(null);
+  initDB();
+
+  // Persist session
+  useEffect(()=>{
+    try{const u=sessionStorage.getItem('luxentra_user');if(u)setUser(JSON.parse(u));}catch{}
+  },[]);
+
+  const login=(u)=>{setUser(u);try{sessionStorage.setItem('luxentra_user',JSON.stringify(u));}catch{}};
+  const logout=()=>{setUser(null);try{sessionStorage.removeItem('luxentra_user');}catch{};toast('Signed out successfully.');};
+
+  return(
+    <AppCtx.Provider value={{user,login,logout}}>
+      <ToastProvider>
+        {user?<AppShell user={user}/>:<AuthScreen/>}
+      </ToastProvider>
+    </AppCtx.Provider>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
