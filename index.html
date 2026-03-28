@@ -874,7 +874,7 @@ function AdminOverview(){
             <tbody>{topAgents.map((a,i)=>(
               <tr key={a.id}>
                 <td><div style={{display:'flex',alignItems:'center',gap:10}}>
-                  <div style={{width:28,height:28,borderRadius:'50%',background:`linear-gradient(135deg,var(--gold),var(--gold-dark))`,display:'flex',alignItems:'center',just-content:'center',fontSize:12,color:'#fff',fontFamily:'Cormorant Garamond,serif',flexShrink:0}}>
+                  <div style={{width:28,height:28,borderRadius:'50%',background:`linear-gradient(135deg,var(--gold),var(--gold-dark))`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,color:'#fff',fontFamily:'Cormorant Garamond,serif',flexShrink:0}}>
                     {a.name.split(' ').map(n=>n[0]).join('').slice(0,2)}
                   </div>
                   <div><div style={{fontWeight:500,fontSize:14}}>{a.name}</div><div style={{fontSize:11,color:'var(--soft)'}}>{a.email}</div></div>
